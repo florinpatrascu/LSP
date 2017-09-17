@@ -57,6 +57,13 @@
         "syntaxes": ["Packages/Go/Go.sublime-syntax"],
         "languageId": "go"
       },
+      "elixir":
+      {
+        "command": ["elixir"],
+        "scopes": ["source.ex", "source.exs"],
+        "syntaxes": ["Packages/elixir-tmbundle/Syntaxes/Elixir.tmLanguage", "Packages/elixir-tmbundle/Syntaxes/EEx.tmLanguage", "Packages/elixir-tmbundle/Syntaxes/HTML (EEx).tmLanguage"],
+        "languageId": "elixir"
+      },
   },
   "show_status_messages": true,
   "show_view_status": true,
