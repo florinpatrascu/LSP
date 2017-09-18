@@ -644,11 +644,12 @@ def check_window_unloaded():
 
 def unload_window_clients(window_id: int):
     global clients_by_window
-    window_clients = clients_by_window[window_id]
-    del clients_by_window[window_id]
-    for config, client in window_clients.items():
-        debug("unloading client", config, client)
-        unload_client(client)
+    if window_id in clients_by_window:
+        window_clients = clients_by_window[window_id]
+        del clients_by_window[window_id]
+        for config, client in window_clients.items():
+            debug("unloading client", config, client)
+            unload_client(client)
 
 
 def unload_client(client: Client):
@@ -812,7 +813,6 @@ def initialize_on_open(view: sublime.View):
 
 def unload_old_clients(window: sublime.Window):
     project_path = get_project_path(window)
-    debug('checking for clients on on ', project_path)
     clients_by_config = window_clients(window)
     clients_to_unload = {}
     for config_name, client in clients_by_config.items():
@@ -987,20 +987,28 @@ def handle_initialize_result(result, client, window, config):
 
 stylesheet = '''
             <style>
+                div.error-arrow {
+                    border-top: 0.4rem solid transparent;
+                    border-left: 0.5rem solid color(var(--redish) blend(var(--background) 30%));
+                    width: 0;
+                    height: 0;
+                }
                 div.error {
                     padding: 0.4rem 0 0.4rem 0.7rem;
-                    margin: 0.2rem 0;
-                    border-radius: 2px;
+                    margin: 0 0 0.2rem;
+                    border-radius: 0 0.2rem 0.2rem 0.2rem;
                 }
+
                 div.error span.message {
                     padding-right: 0.7rem;
                 }
+
                 div.error a {
                     text-decoration: inherit;
                     padding: 0.35rem 0.7rem 0.45rem 0.8rem;
                     position: relative;
                     bottom: 0.05rem;
-                    border-radius: 0 2px 2px 0;
+                    border-radius: 0 0.2rem 0.2rem 0;
                     font-weight: bold;
                 }
                 html.dark div.error a {
@@ -1016,6 +1024,7 @@ stylesheet = '''
 def create_phantom_html(text: str) -> str:
     global stylesheet
     return """<body id=inline-error>{}
+                <div class="error-arrow"></div>
                 <div class="error">
                     <span class="message">{}</span>
                     <a href="code-actions">Code Actions</a>
@@ -1910,6 +1919,7 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
                 resolvable_completion_items = items
 
             self.state = CompletionState.APPLYING
+            self.view.run_command("hide_auto_complete")
             self.run_auto_complete()
         elif self.state == CompletionState.CANCELLING:
             self.do_request(*self.next_request)
